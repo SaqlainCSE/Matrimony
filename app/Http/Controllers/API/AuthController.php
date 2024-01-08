@@ -121,11 +121,18 @@ class AuthController extends Controller
             return response()->json(['message' => 'Invalid OTP'], 401);
         }
 
+        $data['token'] = $user->createToken($request->email)->plainTextToken;
+        $data['user'] = $user;
+
         // Clear OTP after verification
         $user->otp = null;
         $user->save();
 
-        return response()->json(['message' => 'OTP verified successfully'], 200);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'OTP verified successfully',
+            'data' => $data
+        ], 200);
     }
 
 
