@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,5 +29,10 @@ Route::controller(AuthController::class)->group(function()
 
 Route::middleware('auth:sanctum')->group( function ()
 {
+    //Logout System.......................................
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    //Profile Info System.................................
+    Route::get('/profile-info', [UserController::class, 'get_profile_info']);
+    Route::patch('/profile-info', [UserController::class, 'profile_info']);
 });
