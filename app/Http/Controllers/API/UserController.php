@@ -39,6 +39,7 @@ class UserController extends Controller
             'city' => $request->city,
             'marital_status' => $request->marital_status,
             'diet' => $request->diet,
+            'gender' => $request->gender,
             'religion' => $request->religion
         ];
 
