@@ -16,20 +16,20 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validate = Validator::make($request->all(),[
-            'username' => 'required|string|max:250|unique:users,username',
+            // 'username' => 'required|string|max:250|unique:users,username',
             'email' => 'required|string|max:250|unique:users,email'
         ]);
 
         if($validate->fails()){
             return response()->json([
                 'status' => 'failed',
-                'message' => 'Validation Error!',
+                'message' => 'This email already exist!',
                 'data' => $validate->errors(),
             ], 403);
         }
 
         $user = User::create([
-            'username' => $request->username,
+            'username' =>  'ID-'.time().random_int(10, 99),
             'email' => $request->email
         ]);
 
