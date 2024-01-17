@@ -35,4 +35,5 @@ Route::middleware('auth:sanctum')->group( function ()
     //Profile Info System.................................
     Route::get('/profile-info', [UserController::class, 'get_profile_info']);
     Route::patch('/profile-info', [UserController::class, 'profile_info']);
+    Route::get('/profile-suggest', [UserController::class, 'profile_suggest']);
 });
