@@ -34,13 +34,23 @@ class UserController extends Controller
         $user = User::where('id',Auth::user()->id)->first();
 
         $profileInfo = [
+            'profile_summary' => $request->profile_summary,
+            'name' => $request->name,
+            'age' => $request->age,
+            'height' => $request->height,
+            'weight' => $request->weight,
+            'language' => $request->language,
+            'dob' => $request->dob,
             'division' => $request->division,
             'district' => $request->district,
             'city' => $request->city,
             'marital_status' => $request->marital_status,
             'diet' => $request->diet,
             'gender' => $request->gender,
-            'religion' => $request->religion
+            'religion' => $request->religion,
+            'drinking' => $request->drinking,
+            'smoking' => $request->smoking,
+            'hobbies' => $request->hobbies,
         ];
 
         $educationDetails = [
@@ -50,12 +60,22 @@ class UserController extends Controller
         $occupationDetails = [
             'profession' => $request->profession,
             'designation' => $request->designation,
+            'company_name' => $request->company_name,
             'income' => $request->income
+        ];
+
+        $familyDetails = [
+            'family_person' => $request->family_person,
+            'father_name' => $request->father_name,
+            'mother_name' => $request->mother_name,
+            'brother_name' => $request->brother_name,
+            'sister_name' => $request->sister_name
         ];
 
         $user->profile_info = json_encode($profileInfo);
         $user->education_details = json_encode($educationDetails);
         $user->occupation_details = json_encode($occupationDetails);
+        $user->family_details = json_encode($familyDetails);
         $user->update();
 
         return response()->json([
