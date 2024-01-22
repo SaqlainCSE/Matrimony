@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\UserController;
+use App\Http\Controllers\API\MatchController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,4 +37,13 @@ Route::middleware('auth:sanctum')->group( function ()
     Route::get('/profile-info', [UserController::class, 'get_profile_info']);
     Route::patch('/profile-info', [UserController::class, 'profile_info']);
     Route::get('/profile-suggest', [UserController::class, 'profile_suggest']);
+
+    //Match Sending and Receiving System...................
+    Route::post('/send-match-request/{receiverId}', [MatchController::class, 'sendMatchRequest']);
+    Route::patch('/respond-to-match-request/{matchId}', [MatchController::class, 'respondToMatchRequest']);
+    Route::get('/match-requests', [MatchController::class, 'getMatchRequests']);
+    Route::get('/match-lists', [MatchController::class, 'getMatchLists']);
+
+    //Notifications System........................................
+    Route::get('/notifications', [MatchController::class, 'getNotifications']);
 });

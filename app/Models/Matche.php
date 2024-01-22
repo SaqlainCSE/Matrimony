@@ -12,9 +12,19 @@ class Matche extends Model
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'user_id_1',
-        'user_id_2',
+        'sender_id',
+        'receiver_id',
         'matched_date',
         'match_status',
     ];
+
+    public function sender()
+    {
+        return $this->belongsTo(User::class, 'sender_id');
+    }
+
+    public function receiver()
+    {
+        return $this->belongsTo(User::class, 'receiver_id');
+    }
 }
