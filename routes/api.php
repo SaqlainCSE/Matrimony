@@ -34,6 +34,8 @@ Route::middleware('auth:sanctum')->group( function ()
     Route::post('/logout', [AuthController::class, 'logout']);
 
     //Profile Info System.................................
+    Route::get('/profile/{id}', [UserController::class, 'get_profile']);
+    Route::get('/profile-viewer-list', [UserController::class, 'profile_viewer_list']);
     Route::get('/profile-info', [UserController::class, 'get_profile_info']);
     Route::patch('/profile-info', [UserController::class, 'profile_info']);
     Route::get('/profile-suggest', [UserController::class, 'profile_suggest']);

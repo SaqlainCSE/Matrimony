@@ -3,29 +3,114 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\ProfileView;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
+    public function get_profile($id)
+    {
+        // Record the profile view
+        ProfileView::create([
+            'viewer_id' => Auth::id(),
+            'profile_owner_id' => $id,
+        ]);
+
+        // Retrieve the profile_owner's data
+        $profileOwner = User::find($id);
+
+        $profileInfo = $profileOwner->profile_info;
+        $educationInfo = $profileOwner->education_details;
+        $familyInfo = $profileOwner->family_details;
+        $occupationInfo = $profileOwner->occupation_details;
+
+        // Decoding each JSON separately
+        $decodedProfileInfo = json_decode($profileInfo, true);
+        $decodedEducationInfo = json_decode($educationInfo, true);
+        $decodedFamilyInfo = json_decode($familyInfo, true);
+        $decodedOccupationInfo = json_decode($occupationInfo, true);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Profile viewed successfully.',
+            'data' => [
+                'id' => $profileOwner->id,
+                'username' => $profileOwner->username,
+                'email' => $profileOwner->email,
+                'profile_picture' => $profileOwner->profile_picture,
+                'images' => $profileOwner->images,
+                'profile_info' => $decodedProfileInfo,
+                'education_details' => $decodedEducationInfo,
+                'family_details' => $decodedFamilyInfo,
+                'occupation_details' => $decodedOccupationInfo
+            ]
+        ], 200);
+    }
+
+    public function profile_viewer_list()
+    {
+        // Get the profile views where the profile_owner_id is the current user
+        $profileViews = ProfileView::where('profile_owner_id', Auth::id())
+                                    ->with('viewer')
+                                    ->get();
+
+        $profileViews->each(function ($profileView)
+        {
+            if (is_string($profileView->viewer->profile_info)) {
+                $profileView->viewer->profile_info = json_decode($profileView->viewer->profile_info, true);
+            }
+
+            if (is_string($profileView->viewer->education_details)) {
+                $profileView->viewer->education_details = json_decode($profileView->viewer->education_details, true);
+            }
+
+            if (is_string($profileView->viewer->family_details)) {
+                $profileView->viewer->family_details = json_decode($profileView->viewer->family_details, true);
+            }
+
+            if (is_string($profileView->viewer->occupation_details)) {
+                $profileView->viewer->occupation_details = json_decode($profileView->viewer->occupation_details, true);
+            }
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Profile views fetched successfully.',
+            'data' => $profileViews
+        ], 200);
+    }
+
     public function get_profile_info()
     {
         $user = User::where('id',Auth::user()->id)->first();
 
         $profileInfo = $user->profile_info;
         $educationInfo = $user->education_details;
+        $familyInfo = $user->family_details;
         $occupationInfo = $user->occupation_details;
 
         // Decoding each JSON separately
         $decodedProfileInfo = json_decode($profileInfo, true);
         $decodedEducationInfo = json_decode($educationInfo, true);
+        $decodedFamilyInfo = json_decode($familyInfo, true);
         $decodedOccupationInfo = json_decode($occupationInfo, true);
 
         return response()->json([
             'status' => 'success',
             'message' => 'Info Fetched Successfully',
-            'data' => [$decodedProfileInfo,$decodedEducationInfo,$decodedOccupationInfo]
+            'data' => [
+                'id' => $user->id,
+                'username' => $user->username,
+                'email' => $user->email,
+                'profile_picture' => $user->profile_picture,
+                'images' => $user->images,
+                'profile_info' => $decodedProfileInfo,
+                'education_details' => $decodedEducationInfo,
+                'family_details' => $decodedFamilyInfo,
+                'occupation_details' => $decodedOccupationInfo
+            ]
         ], 200);
     }
 
