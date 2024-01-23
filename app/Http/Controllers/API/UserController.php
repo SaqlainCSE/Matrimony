@@ -33,49 +33,28 @@ class UserController extends Controller
     {
         $user = User::where('id',Auth::user()->id)->first();
 
-        $profileInfo = [
-            'profile_summary' => $request->profile_summary,
-            'name' => $request->name,
-            'age' => $request->age,
-            'height' => $request->height,
-            'weight' => $request->weight,
-            'language' => $request->language,
-            'dob' => $request->dob,
-            'division' => $request->division,
-            'district' => $request->district,
-            'city' => $request->city,
-            'marital_status' => $request->marital_status,
-            'diet' => $request->diet,
-            'gender' => $request->gender,
-            'religion' => $request->religion,
-            'drinking' => $request->drinking,
-            'smoking' => $request->smoking,
-            'hobbies' => $request->hobbies,
-        ];
+        // Extract only the filled fields from the request
+        $profileInfo = array_filter($request->only([
+            'profile_summary', 'name', 'age', 'height', 'weight', 'language',
+            'dob', 'division', 'district', 'city', 'marital_status', 'diet',
+            'gender', 'religion', 'drinking', 'smoking', 'hobbies'
+        ]));
 
-        $educationDetails = [
-            'education_level' => $request->education_level
-        ];
+        $educationDetails = array_filter($request->only(['education_level']));
 
-        $occupationDetails = [
-            'profession' => $request->profession,
-            'designation' => $request->designation,
-            'company_name' => $request->company_name,
-            'income' => $request->income
-        ];
+        $occupationDetails = array_filter($request->only([
+            'profession', 'designation', 'company_name', 'income'
+        ]));
 
-        $familyDetails = [
-            'family_person' => $request->family_person,
-            'father_name' => $request->father_name,
-            'mother_name' => $request->mother_name,
-            'brother_name' => $request->brother_name,
-            'sister_name' => $request->sister_name
-        ];
+        $familyDetails = array_filter($request->only([
+            'family_person', 'father_name', 'mother_name', 'brother_name', 'sister_name'
+        ]));
 
-        $user->profile_info = json_encode($profileInfo);
-        $user->education_details = json_encode($educationDetails);
-        $user->occupation_details = json_encode($occupationDetails);
-        $user->family_details = json_encode($familyDetails);
+        // Merge only the non-empty arrays
+        $user->profile_info = json_encode(array_merge(json_decode($user->profile_info, true) ?? [], $profileInfo));
+        $user->education_details = json_encode(array_merge(json_decode($user->education_details, true) ?? [], $educationDetails));
+        $user->occupation_details = json_encode(array_merge(json_decode($user->occupation_details, true) ?? [], $occupationDetails));
+        $user->family_details = json_encode(array_merge(json_decode($user->family_details, true) ?? [], $familyDetails));
         $user->update();
 
         return response()->json([
