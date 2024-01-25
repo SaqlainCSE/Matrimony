@@ -48,4 +48,7 @@ Route::middleware('auth:sanctum')->group( function ()
 
     //Notifications System........................................
     Route::get('/notifications', [MatchController::class, 'getNotifications']);
+
+    //Filter and Searching System........................................
+    Route::post('/filter', [UserController::class, 'profile_filter']);
 });

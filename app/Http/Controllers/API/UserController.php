@@ -198,4 +198,69 @@ class UserController extends Controller
             'data' => $suggestedProfiles,
         ], 200);
     }
+
+    public function profile_filter(Request $request)
+    {
+        $currentUser = Auth::user();
+
+        $ageMin = $request->input('age_min');
+        $ageMax = $request->input('age_max');
+        $heightMin = $request->input('height_min');
+        $heightMax = $request->input('height_max');
+        $educationLevel = $request->input('education_level');
+        $maritalStatus = $request->input('marital_status');
+        $profession = $request->input('profession');
+        $district = $request->input('district');
+        $division = $request->input('division');
+        $city = $request->input('city');
+
+        $querys = User::where('id', '!=', $currentUser->id)->get();
+
+        // Filtering based on $querys
+        $filteredQuerys = $querys->filter(function ($query) use ($educationLevel, $maritalStatus, $profession, $district, $division, $city, $ageMin, $ageMax, $heightMin, $heightMax) {
+            $othersProfileInfo = json_decode($query->profile_info, true) ?? [];
+            $othersEducationInfo = json_decode($query->education_details, true) ?? [];
+            $othersOccupationInfo = json_decode($query->occupation_details, true) ?? [];
+
+            // Additional filters based on your criteria
+            return (
+                (!$educationLevel || (isset($othersEducationInfo['education_level']) && $othersEducationInfo['education_level'] === $educationLevel)) &&
+                (!$maritalStatus || (isset($othersProfileInfo['marital_status']) && $othersProfileInfo['marital_status'] === $maritalStatus)) &&
+                (!$profession || (isset($othersOccupationInfo['profession']) && $othersOccupationInfo['profession'] === $profession)) &&
+                (!$district || (isset($othersProfileInfo['district']) && $othersProfileInfo['district'] === $district)) &&
+                (!$division || (isset($othersProfileInfo['division']) && $othersProfileInfo['division'] === $division)) &&
+                (!$city || (isset($othersProfileInfo['city']) && $othersProfileInfo['city'] === $city)) &&
+                (!$ageMin || (isset($othersProfileInfo['age']) && $othersProfileInfo['age'] >= $ageMin)) &&
+                (!$ageMax || (isset($othersProfileInfo['age']) && $othersProfileInfo['age'] <= $ageMax)) &&
+                (!$heightMin || (isset($othersProfileInfo['height']) && $othersProfileInfo['height'] >= $heightMin)) &&
+                (!$heightMax || (isset($othersProfileInfo['height']) && $othersProfileInfo['height'] <= $heightMax))
+            );
+        });
+
+        // Build the final result array
+        $suggestedQuerys = $filteredQuerys->map(function ($query) {
+            $othersProfileInfo = json_decode($query->profile_info, true) ?? [];
+            $othersEducationDetails = json_decode($query->education_details, true) ?? [];
+            $othersOccupationDetails = json_decode($query->occupation_details, true) ?? [];
+
+            return [
+                'id' => $query->id,
+                'username' => $query->username,
+                'email' => $query->email,
+                'profile_picture' => $query->profile_picture,
+                'images' => $query->images,
+                'profile_info' => $othersProfileInfo,
+                'education_details' => $othersEducationDetails,
+                'occupation_details' => $othersOccupationDetails,
+                'created_at' => $query->created_at,
+                'updated_at' => $query->updated_at,
+            ];
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Filtered profiles fetched successfully',
+            'data' => $suggestedQuerys->values(),
+        ], 200);
+    }
 }
