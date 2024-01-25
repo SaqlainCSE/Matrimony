@@ -263,4 +263,51 @@ class UserController extends Controller
             'data' => $suggestedQuerys->values(),
         ], 200);
     }
+
+    public function profile_search(Request $request)
+    {
+        $currentUser = Auth::user();
+
+        // Fetch all other users
+        $otherUsers = User::where('id', '!=', $currentUser->id)->get();
+
+        // Accumulate suggested profiles
+        $searchedProfiles = [];
+
+        $searchTerm = $request->input('name');
+
+        foreach ($otherUsers as $otherUser)
+        {
+            $othersProfileInfo = json_decode($otherUser->profile_info, true);
+            $othersContactDetails = json_decode($otherUser->contact_details, true);
+            $othersEducationDetails = json_decode($otherUser->education_details, true);
+            $othersFamilyDetails = json_decode($otherUser->family_details, true);
+            $othersOccupationDetails = json_decode($otherUser->occupation_details, true);
+            $othersName = $othersProfileInfo['name'];
+
+            // Check if the name contains the search term
+            if (stripos($othersName, $searchTerm) !== false) {
+                $searchedProfiles[] = [
+                    'id' => $otherUser->id,
+                    'username' => $otherUser->username,
+                    'email' => $otherUser->email,
+                    'profile_picture' => $otherUser->profile_picture,
+                    'images' => $otherUser->images,
+                    'profile_info' => $othersProfileInfo,
+                    'contact_details' => $othersContactDetails,
+                    'education_details' => $othersEducationDetails,
+                    'family_details' => $othersFamilyDetails,
+                    'occupation_details' => $othersOccupationDetails,
+                    'created_at' => $otherUser->created_at,
+                    'updated_at' => $otherUser->updated_at,
+                ];
+            }
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Searched profiles fetched successfully',
+            'data' => $searchedProfiles,
+        ], 200);
+    }
 }

@@ -51,4 +51,5 @@ Route::middleware('auth:sanctum')->group( function ()
 
     //Filter and Searching System........................................
     Route::post('/filter', [UserController::class, 'profile_filter']);
+    Route::post('/search', [UserController::class, 'profile_search']);
 });
