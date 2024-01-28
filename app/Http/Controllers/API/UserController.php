@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\Matche;
 use App\Models\ProfileView;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -160,11 +161,21 @@ class UserController extends Controller
         // Fetch all other users
         $otherUsers = User::where('id', '!=', $currentUser->id)->get();
 
+        // Fetch the IDs of profiles already requested or added
+        $requestedProfileIds = Matche::where('sender_id', $currentUser->id)->pluck('receiver_id')->toArray();
+        $addedProfileIds = Matche::where('receiver_id', $currentUser->id)->pluck('sender_id')->toArray();
+        $excludedProfileIds = array_merge($requestedProfileIds, $addedProfileIds);
+
         // Accumulate suggested profiles
         $suggestedProfiles = [];
 
         foreach ($otherUsers as $otherUser)
         {
+            // Skip if the profile is already requested or added
+            if (in_array($otherUser->id, $excludedProfileIds)) {
+                continue;
+            }
+
             $othersProfileInfo = json_decode($otherUser->profile_info, true);
             $othersContactDetails = json_decode($otherUser->contact_details, true);
             $othersEducationDetails = json_decode($otherUser->education_details, true);
