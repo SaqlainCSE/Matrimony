@@ -8,6 +8,7 @@ use App\Models\ProfileView;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -319,6 +320,38 @@ class UserController extends Controller
             'status' => 'success',
             'message' => 'Searched profiles fetched successfully',
             'data' => $searchedProfiles,
+        ], 200);
+    }
+
+    public function profile_picture(Request $request)
+    {
+        $currentUser = Auth::user();
+
+        // Check if the user already has a profile picture
+        if ($currentUser->profile_picture) {
+            // Get the file name from the URL
+            $fileName = basename($currentUser->profile_picture);
+
+            // Delete the old profile picture
+            Storage::disk('public')->delete('profile_pictures/' . $fileName);
+        }
+
+        // Upload the new profile picture
+        $profilePicture = $request->file('profile_picture');
+        $path = $profilePicture->store('public/profile_pictures');
+
+        // Generate the public URL for the stored image
+        $imageUrl = Storage::url($path);
+
+        // Store the image URL in the database
+        $currentUser->update([
+            'profile_picture' => $imageUrl,
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Profile picture updated successfully.',
+            'profile_picture' => $imageUrl,
         ], 200);
     }
 }

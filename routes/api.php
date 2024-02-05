@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\MatchController;
+use App\Http\Controllers\API\ChatController;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,4 +53,11 @@ Route::middleware('auth:sanctum')->group( function ()
     //Filter and Searching System........................................
     Route::post('/filter', [UserController::class, 'profile_filter']);
     Route::post('/search', [UserController::class, 'profile_search']);
+
+    //Image upload systems...............................................
+    Route::post('/profile-picture', [UserController::class, 'profile_picture']);
+
+    //Live Chat system...................................................
+    Route::post('/send-message', [ChatController::class, 'sendMessage']);
+    Route::get('/get-message', [ChatController::class, 'getMessages']);
 });
